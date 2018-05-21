@@ -8,8 +8,9 @@ import customer
 import datetime
 
 def import_customers(customer_file: str) -> Dict[int, customer.Customer]:
-    """This functions takes in a file name and
+    """This function takes in a file name and
     outputs a dictionary containing the file's customers"""
+
     ht = {} # type: Dict[int, customer.Customer]
     with open(customer_file, newline='') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
@@ -21,4 +22,4 @@ def import_customers(customer_file: str) -> Dict[int, customer.Customer]:
     return ht
 
 def parse_datetime(datetime_string: str) -> datetime.datetime:
-    return datetime.datetime.now()
+    return datetime.datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S")
