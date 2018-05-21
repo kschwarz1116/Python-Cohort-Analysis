@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for file in src/*; do
+    if [[ $file == *.py ]]; then
+        echo $file       
+        pylint3 $file
+    fi
+done
+
+python3 -m mypy --strict src/
