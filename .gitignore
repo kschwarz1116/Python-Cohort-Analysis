@@ -2,3 +2,4 @@ scratch/
 /#*
 src/.*
 *__*
+.mypy_cache/
