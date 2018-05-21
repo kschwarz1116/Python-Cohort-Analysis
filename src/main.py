@@ -1,17 +1,21 @@
 """
-Goals:
--Create customer class
-  ID - Int
-  Created - UTCTime
-  [Order times] - [UTCTime]
--Import customers.csv
-  Store customers in a hash table
--Import orders.csv
-  Throw out orders for non-existent customers
-  Update order times
--Generate output data
-  Out = [[Int]]
-  Out[n][m] = # of distinct orders for m weeks into the nth cohort
--Output to a csv
-  
+This script holds the main functionality for the Cohort Analysis programming challenge.
 """
+
+import sys
+
+def main() -> None:
+    """This function accepts command line arguments and parses them into a table"""
+
+    customer_file = ""
+    order_file = ""
+    if len(sys.argv) != 3:
+        print("Got improper args")
+        return
+
+    customer_file = sys.argv[1]
+    order_file = sys.argv[2]
+
+    print("Got " + customer_file + " and " + order_file)
+
+main()
