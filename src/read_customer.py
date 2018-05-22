@@ -26,7 +26,7 @@ def read_customers(customer_file: str) -> Dict[int, Customer]:
 
 def read_customer(customers: Dict[int, Customer], customer: int, created: str) -> Dict[int, Customer]:
     try:
-        parse_created = datetime.datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
+        parse_created = dt.datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
     except ValueError:
         #Don't import the line for a ValueError
         pass
