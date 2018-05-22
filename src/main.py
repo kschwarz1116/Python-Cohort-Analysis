@@ -3,6 +3,8 @@ This script holds the main functionality for the Cohort Analysis programming cha
 """
 
 import sys
+import read_customer
+import read_orders
 
 def main() -> None:
     """This function accepts command line arguments and parses them into a table"""
@@ -15,7 +17,13 @@ def main() -> None:
 
     customer_file = sys.argv[1]
     order_file = sys.argv[2]
+    
+    customers = read_customer.read_customers(customer_file)
+    customers = read_orders.read_orders(order_file, customers)
 
-    print("Got " + customer_file + " and " + order_file)
+    for customer in customers:
+        print(customer)
+        print(customers[customer].created)
+        print(customers[customer].order_times)
 
 main()
