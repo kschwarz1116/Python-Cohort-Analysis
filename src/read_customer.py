@@ -4,39 +4,32 @@ Imports the list of customers
 
 from typing import Dict
 import csv
-import datetime
+import datetime as dt
 
-import customer
+from customer import *
 
-def import_customers(customer_file: str) -> Dict[int, customer.Customer]:
+def read_customers(customer_file: str) -> Dict[int, Customer]:
     """
     This function takes in a file name and
     outputs a dictionary containing the file's customers
     """
 
-    customers = {} # type: Dict[int, customer.Customer]
+    customers = {} # type: Dict[int, Customer]
     with open(customer_file, newline='') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
         row_num = 0 # type: int
         for row in csv_reader:
             if row_num != 0:
-                try:
-                    parse_result = parse_datetime(row[1])
-                except ValueError:
-                    #Don't import the line for a ValueError
-                    pass
-                else:
-                    customers[int(row[0])] = customer.Customer(parse_result)
+                read_customer(customers, int(row[0]), row[1])
             row_num += 1
     return customers
 
-def parse_datetime(datetime_string: str) -> datetime.datetime:
-    """
-    Parses a string into a datetime object.
-    Raises ValueError for invalid strings.
-    """
+def read_customer(customers: Dict[int, Customer], customer: int, created: str) -> Dict[int, Customer]:
     try:
-        datetime_out = datetime.datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S")
+        parse_created = datetime.datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
     except ValueError:
-        raise
-    return datetime_out
+        #Don't import the line for a ValueError
+        pass
+    else:
+        customers[customer] = Customer(parse_created)    
+    return customers
