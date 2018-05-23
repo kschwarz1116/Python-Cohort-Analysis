@@ -59,5 +59,12 @@ def add_to_cohorts(customer: Customer, cohorts: List[Tuple[dt.datetime, int, Lis
     cohorts[cohort] = (datetime, num_customers, distinct_purchases)
     return
 
-def print_cohort_analysis(cohort: List[Tuple[dt.datetime, int, List[int]]], out_file: str) -> None:
+def print_cohort_analysis(cohorts: List[Tuple[dt.datetime, int, List[int]]], out_file: str) -> None:
+    with open(out_file, 'w', newline='') as csvfile:
+        cohort_writer = csv.writer(csvfile, delimiter=',')
+        cohort_writer.writerows(map(flatten_tuple , cohorts))
     return
+
+def flatten_tuple(tup):
+    dt, num_customers, list_purchases = tup
+    return [dt, num_customers] + list_purchases
