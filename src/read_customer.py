@@ -6,7 +6,7 @@ from typing import Dict
 import csv
 import datetime as dt
 
-from customer import *
+from customer import Customer, CUSTOMERS
 
 def read_customers(customer_file: str) -> Dict[int, Customer]:
     """
@@ -24,12 +24,15 @@ def read_customers(customer_file: str) -> Dict[int, Customer]:
             row_num += 1
     return customers
 
-def read_customer(customers: Dict[int, Customer], customer: int, created: str) -> Dict[int, Customer]:
+def read_customer(customers: CUSTOMERS, customer: int, created: str) -> CUSTOMERS:
+    """
+    Attempts to create a customer. Creation times with bad formatting are ignored.
+    """
     try:
         parse_created = dt.datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
     except ValueError:
         #Don't import the line for a ValueError
         pass
     else:
-        customers[customer] = Customer(parse_created)    
+        customers[customer] = Customer(parse_created)
     return customers
