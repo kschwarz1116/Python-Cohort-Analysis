@@ -60,11 +60,15 @@ def add_to_cohorts(customer: Customer, cohorts: List[Tuple[dt.datetime, int, Lis
     return
 
 def print_cohort_analysis(cohorts: List[Tuple[dt.datetime, int, List[int]]], out_file: str) -> None:
+    num_weeks = len(max(cohorts, key=lambda x: len(x[2]))[2])
+
     with open(out_file, 'w', newline='') as csvfile:
         cohort_writer = csv.writer(csvfile, delimiter=',')
+        cohort_writer.writerow(["Cohort", "Customers"] + list(map(lambda x: str(7*x) + "-" + str(7*x+6) + " days", range(num_weeks))))
         cohort_writer.writerows(map(flatten_tuple , cohorts))
+
     return
 
 def flatten_tuple(tup):
-    dt, num_customers, list_purchases = tup
-    return [dt, num_customers] + list_purchases
+    end_time, num_customers, list_purchases = tup
+    return [str(end_time - dt.timedelta(7)) + " - " +  str(end_time), num_customers] + list_purchases
