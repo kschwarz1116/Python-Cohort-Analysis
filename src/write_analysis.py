@@ -9,7 +9,7 @@ import datetime as dt
 from customer import *
 
 
-def generate_cohort_analysis(customers: Dict[int, Customer]) -> List[Tuple[dt.datetime, int, List[int]]]:
+def generate_cohort_analysis(customers: Dict[int, Customer]) -> List[Tuple[dt.date, int, List[int]]]:
     """
     Returns a list of (datetime, number of customers, [distinct purchases])
     datetime represents end time of a cohort
@@ -17,11 +17,11 @@ def generate_cohort_analysis(customers: Dict[int, Customer]) -> List[Tuple[dt.da
     [distinct purchases] is a list where index n is equal to the number of
     distinct customers that made a purchase within the nth week of their signup
     """
-    cohorts = [] # type: List[Tuple[dt.datetime, int, List[int]]]
+    cohorts = [] # type: List[Tuple[dt.date, int, List[int]]]
 
-    #Find cohort bounds
-    earliest_created = customers[min(customers, key=lambda x: customers[x].created)].created
-    latest_created = customers[max(customers, key=lambda x: customers[x].created)].created
+    #Find cohort bounds - defined based on earliest and latest dates
+    earliest_created = customers[min(customers, key=lambda x: customers[x].created)].created.date() 
+    latest_created = customers[max(customers, key=lambda x: customers[x].created)].created.date()
 
     #Initialize output array
     cohort = latest_created
@@ -34,8 +34,8 @@ def generate_cohort_analysis(customers: Dict[int, Customer]) -> List[Tuple[dt.da
 
     return cohorts
 
-def add_to_cohorts(customer: Customer, cohorts: List[Tuple[dt.datetime, int, List[int]]]) -> None:
-    cohort = (cohorts[0][0] - customer.created) // dt.timedelta(7)
+def add_to_cohorts(customer: Customer, cohorts: List[Tuple[dt.date, int, List[int]]]) -> None:
+    cohort = (cohorts[0][0] - customer.created.date()) // dt.timedelta(7)
 
     datetime, num_customers, distinct_purchases = cohorts[cohort]
     
@@ -54,12 +54,11 @@ def add_to_cohorts(customer: Customer, cohorts: List[Tuple[dt.datetime, int, Lis
     
     for purchase_week in distinct_purchase_weeks:
         cohorts[cohort][2][purchase_week] += 1
-
     
     cohorts[cohort] = (datetime, num_customers, distinct_purchases)
     return
 
-def print_cohort_analysis(cohorts: List[Tuple[dt.datetime, int, List[int]]], out_file: str) -> None:
+def print_cohort_analysis(cohorts: List[Tuple[dt.date, int, List[int]]], out_file: str) -> None:
     num_weeks = len(max(cohorts, key=lambda x: len(x[2]))[2])
 
     with open(out_file, 'w', newline='') as csvfile:
@@ -71,4 +70,4 @@ def print_cohort_analysis(cohorts: List[Tuple[dt.datetime, int, List[int]]], out
 
 def flatten_tuple(tup):
     end_time, num_customers, list_purchases = tup
-    return [str(end_time - dt.timedelta(7)) + " - " +  str(end_time), num_customers] + list_purchases
+    return [str(end_time - dt.timedelta(6)) + " - " +  str(end_time), num_customers] + list_purchases
