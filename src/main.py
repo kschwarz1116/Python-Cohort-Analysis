@@ -12,17 +12,19 @@ def main() -> None:
 
     customer_file = "" # type: str
     order_file = "" # type: str
-    if len(sys.argv) != 4:
+    num_args = len(sys.argv) # type: int
+    if (num_args < 4) or (num_args > 6):
         print("Got improper args")
         return
 
     customer_file = sys.argv[1]
     order_file = sys.argv[2]
     out_file = sys.argv[3]
+    offset_hours = sys.argv[4]
     
     customers = read_customer.read_customers(customer_file)
     customers = read_orders.read_orders(order_file, customers)
     
-    write_analysis.print_cohort_analysis(write_analysis.generate_cohort_analysis(customers), out_file)
+    write_analysis.print_cohort_analysis(write_analysis.generate_cohort_analysis(customers, offset_hours), out_file)
 
 main()

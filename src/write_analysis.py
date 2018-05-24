@@ -9,7 +9,7 @@ import datetime as dt
 from customer import *
 
 
-def generate_cohort_analysis(customers: Dict[int, Customer]) -> List[Tuple[dt.date, int, List[int]]]:
+def generate_cohort_analysis(customers: Dict[int, Customer], offset: str) -> List[Tuple[dt.date, int, List[int]]]:
     """
     Returns a list of (datetime, number of customers, [distinct purchases])
     datetime represents end time of a cohort
@@ -18,10 +18,11 @@ def generate_cohort_analysis(customers: Dict[int, Customer]) -> List[Tuple[dt.da
     distinct customers that made a purchase within the nth week of their signup
     """
     cohorts = [] # type: List[Tuple[dt.date, int, List[int]]]
+    timezone = dt.timezone(dt.timedelta(hours = float(offset))) # type: dt.timezone
 
-    #Find cohort bounds - defined based on earliest and latest dates
-    earliest_created = customers[min(customers, key=lambda x: customers[x].created)].created.date() 
-    latest_created = customers[max(customers, key=lambda x: customers[x].created)].created.date()
+    #Find cohort bounds - defined based on earliest and latest dates in the correct timezone
+    earliest_created = get_created_date_from_customer(customers[min(customers, key=lambda x: customers[x].created)], timezone)
+    latest_created = get_created_date_from_customer(customers[max(customers, key=lambda x: customers[x].created)], timezone)
 
     #Initialize output array
     cohort = latest_created
@@ -30,14 +31,18 @@ def generate_cohort_analysis(customers: Dict[int, Customer]) -> List[Tuple[dt.da
         cohort = cohort - dt.timedelta(7)
     
     for customer in customers.values():
-        add_to_cohorts(customer, cohorts)
+        add_to_cohorts(customer, cohorts, timezone)
 
     return cohorts
 
-def add_to_cohorts(customer: Customer, cohorts: List[Tuple[dt.date, int, List[int]]]) -> None:
-    cohort = (cohorts[0][0] - customer.created.date()) // dt.timedelta(7)
+def get_created_date_from_customer(customer: Customer, timezone: dt.timezone) -> dt.date:
+    created_time = customer.created
+    return created_time.astimezone(timezone).date()
 
-    datetime, num_customers, distinct_purchases = cohorts[cohort]
+def add_to_cohorts(customer: Customer, cohorts: List[Tuple[dt.date, int, List[int]]], timezone: dt.timezone) -> None:
+    cohort = (cohorts[0][0] - get_created_date_from_customer(customer, timezone)) // dt.timedelta(7)
+
+    date, num_customers, distinct_purchases = cohorts[cohort]
     
     num_customers += 1
 
@@ -55,7 +60,7 @@ def add_to_cohorts(customer: Customer, cohorts: List[Tuple[dt.date, int, List[in
     for purchase_week in distinct_purchase_weeks:
         cohorts[cohort][2][purchase_week] += 1
     
-    cohorts[cohort] = (datetime, num_customers, distinct_purchases)
+    cohorts[cohort] = (date, num_customers, distinct_purchases)
     return
 
 def print_cohort_analysis(cohorts: List[Tuple[dt.date, int, List[int]]], out_file: str) -> None:
