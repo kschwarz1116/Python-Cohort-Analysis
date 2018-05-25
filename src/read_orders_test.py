@@ -48,25 +48,26 @@ def test_3() -> None:
     read_customer(customers_ex, 0, "2018-01-01 12:00:00")
     read_customer(customers_act, 0, "2018-01-01 12:00:00")
 
-    customers_ex[0].order_times.append(dt.datetime(2018, 1, 1, 12, 30, 0))
+    customers_ex[0].order_times.append(dt.datetime(2018, 1, 1, 12, 30, 0, tzinfo=dt.timezone.utc))
     read_order(customers_act, 0, "2018-01-01 12:30:00")
     assert customers_equiv(customers_ex, customers_act)
 
-    customers_ex[0].order_times.append(dt.datetime(2018, 2, 1, 12, 14, 0))
+    customers_ex[0].order_times.append(dt.datetime(2018, 2, 1, 12, 14, 0, tzinfo=dt.timezone.utc))
     read_order(customers_act, 0, "2018-02-01 12:14:00")
     assert customers_equiv(customers_ex, customers_act)
 
-    customers_ex[0].order_times.append(dt.datetime(2018, 3, 14, 15, 9, 26))
+    customers_ex[0].order_times.append(dt.datetime(2018, 3, 14, 15, 9, 26, tzinfo=dt.timezone.utc))
     read_order(customers_act, 0, "2018-03-14 15:09:26")
     assert customers_equiv(customers_ex, customers_act)
 
     read_customer(customers_ex, 1, "2017-01-03 3:00:00")
     read_customer(customers_act, 1, "2017-01-03 3:00:00")
 
-    customers_ex[1].order_times.append(dt.datetime(2017, 6, 15, 3, 0, 0))
+    customers_ex[1].order_times.append(dt.datetime(2017, 6, 15, 3, 0, 0, tzinfo=dt.timezone.utc))
     read_order(customers_act, 1, "2017-06-15 3:00:00")
     assert customers_equiv(customers_ex, customers_act)
 
-    customers_ex[1].order_times.append(dt.datetime(2017, 9, 15, 3, 0, 0))
+    customers_ex[1].order_times.append(dt.datetime(2017, 9, 15, 3, 0, 0, tzinfo=dt.timezone.utc))
     read_order(customers_act, 1, "2017-09-15 3:00:00")
     assert customers_equiv(customers_ex, customers_act)
+

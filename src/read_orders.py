@@ -26,9 +26,10 @@ def read_order(customers: CUSTOMERS, customer_id: int, order: str) -> None:
     """
     if customer_id in customers:
         try:
-            parse_order: dt.datetime = dt.datetime.strptime(order, "%Y-%m-%d %H:%M:%S")
+            order_dt: dt.datetime = dt.datetime.strptime(order, "%Y-%m-%d %H:%M:%S")
+            order_dt = dt.datetime.combine(order_dt.date(), order_dt.time(), dt.timezone.utc)
         except ValueError:
             #Don't import the line for a ValueError
             pass
         else:
-            customers[customer_id].order_times.append(parse_order)
+            customers[customer_id].order_times.append(order_dt)
