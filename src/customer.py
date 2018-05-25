@@ -10,7 +10,7 @@ class Customer:
 
     def __init__(self, created: dt.datetime) -> None:
         """Initialize the customer"""
-        self.created = created #type: dt.datetime
-        self.order_times = [] #type: List[dt.datetime]
+        self.created: dt.datetime = created
+        self.order_times: List[dt.datetime] = []
 
 CUSTOMERS = Dict[int, Customer]

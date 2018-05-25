@@ -2,7 +2,7 @@
 Organizes the customer hashtable into a printable format, and prints to csv
 """
 
-from typing import List, Tuple
+from typing import Callable, List, Set, Tuple
 import csv
 import datetime as dt
 
@@ -18,44 +18,48 @@ def generate_cohort_analysis(customers: CUSTOMERS, offset: str) -> CSVARRAY:
     [distinct purchases] is a list where index n is equal to the number of
     distinct customers that made a purchase within the nth week of their signup
     """
-    cohorts = [] # type: List[Tuple[dt.date, int, List[int]]]
-    timezone = dt.timezone(dt.timedelta(hours=float(offset))) # type: dt.timezone
+    cohorts: CSVARRAY = []
+    tzone: dt.timezone = dt.timezone(dt.timedelta(hours=float(offset)))
 
     #Find cohort bounds - defined based on earliest and latest dates in the correct timezone
-    get_created = lambda x: customers[x].created
-    earliest_created = get_created_date(customers[min(customers, key=get_created)], timezone)
-    latest_created = get_created_date(customers[max(customers, key=get_created)], timezone)
+    get_created: Callable[[int], dt.datetime] = lambda x: customers[x].created
+    earliest_created: dt.date = get_created_date(customers[min(customers, key=get_created)], tzone)
+    latest_created: dt.date = get_created_date(customers[max(customers, key=get_created)], tzone)
 
     #Initialize output array
-    cohort = latest_created
+    cohort: dt.date = latest_created
     while earliest_created <= cohort:
         cohorts.append((cohort, 0, []))
         cohort = cohort - dt.timedelta(7)
 
     for customer in customers.values():
-        add_to_cohorts(customer, cohorts, timezone)
+        add_to_cohorts(customer, cohorts, tzone)
 
     return cohorts
 
-def get_created_date(customer: Customer, timezone: dt.timezone) -> dt.date:
+def get_created_date(customer: Customer, tzone: dt.timezone) -> dt.date:
     """
     Given a customer, returns their created time, localized to timezone
     """
-    created_time = customer.created
-    return created_time.astimezone(timezone).date()
+    created_time: dt.datetime = customer.created
+    return created_time.astimezone(tzone).date()
 
-def add_to_cohorts(customer: Customer, cohorts: CSVARRAY, timezone: dt.timezone) -> None:
+def add_to_cohorts(customer: Customer, cohorts: CSVARRAY, tzone: dt.timezone) -> None:
     """
     Given a customer, adds them to the cohorts array based on their created time and purchases
     """
-    cohort = (cohorts[0][0] - get_created_date(customer, timezone)) // dt.timedelta(7)
+    cohort_index: int = (cohorts[0][0] - get_created_date(customer, tzone)) // dt.timedelta(7)
 
-    date, num_customers, distinct_purchases = cohorts[cohort]
+    date: dt.date
+    num_customers: int
+    distinct_purchases: List[int]
+    date, num_customers, distinct_purchases = cohorts[cohort_index]
 
     num_customers += 1
 
-    distinct_purchase_weeks = set()
-    max_purchase_week = 0
+    distinct_purchase_weeks: Set[int] = set()
+    max_purchase_week: int = 0
+    purchase_week: int
 
     for time in customer.order_times:
         purchase_week = (time - customer.created) // dt.timedelta(7)
@@ -66,20 +70,20 @@ def add_to_cohorts(customer: Customer, cohorts: CSVARRAY, timezone: dt.timezone)
         distinct_purchases.extend([0]*(max_purchase_week + 1 - len(distinct_purchases)))
 
     for purchase_week in distinct_purchase_weeks:
-        cohorts[cohort][2][purchase_week] += 1
+        cohorts[cohort_index][2][purchase_week] += 1
 
-    cohorts[cohort] = (date, num_customers, distinct_purchases)
-    return
+    cohorts[cohort_index] = (date, num_customers, distinct_purchases)
 
 def print_cohort_analysis(cohorts: CSVARRAY, out_file: str) -> None:
     """
     Generates the CSV for cohorts into out_file
     """
-    num_weeks = len(max(cohorts, key=lambda x: len(x[2]))[2])
+    num_weeks: int = len(max(cohorts, key=lambda x: len(x[2]))[2])
 
     with open(out_file, 'w', newline='') as csvfile:
         cohort_writer = csv.writer(csvfile, delimiter=',')
-        day_headers = list(map(lambda x: str(7*x) + "-" + str(7*x+6) + " days", range(num_weeks)))
+        cohort_bounds: Callable[[int], str] = lambda x: str(7*x) + "-" + str(7*x+6) + " days"
+        day_headers: List[str] = list(map(cohort_bounds, range(num_weeks)))
         cohort_writer.writerow(["Cohort", "Customers"] + day_headers)
         cohort_writer.writerows(map(format_tuple, cohorts))
 
@@ -88,6 +92,7 @@ def print_cohort_analysis(cohorts: CSVARRAY, out_file: str) -> None:
 def format_tuple(tup):
     """
     Prepares tuple for writerows so that each element is separated by a comma
+    Not typing this one. See mypy issue #3935
     """
-    end_time, num_customers, purchase_list = tup
-    return [str(end_time - dt.timedelta(6)) + " - " +  str(end_time), num_customers] + purchase_list
+    end_date, num_customers, purchase_list = tup
+    return [str(end_date - dt.timedelta(6)) + " - " +  str(end_date), num_customers] + purchase_list

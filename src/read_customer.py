@@ -14,25 +14,24 @@ def read_customers(customer_file: str) -> Dict[int, Customer]:
     outputs a dictionary containing the file's customers
     """
 
-    customers = {} # type: Dict[int, Customer]
+    customers: CUSTOMERS = {}
     with open(customer_file, newline='') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
-        row_num = 0 # type: int
+        row_num: int = 0
         for row in csv_reader:
             if row_num != 0:
                 read_customer(customers, int(row[0]), row[1])
             row_num += 1
     return customers
 
-def read_customer(customers: CUSTOMERS, customer: int, created: str) -> CUSTOMERS:
+def read_customer(customers: CUSTOMERS, customer: int, created: str) -> None:
     """
     Attempts to create a customer. Creation times with bad formatting are ignored.
     """
     try:
-        parse_created = dt.datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
+        parse_created: dt.datetime = dt.datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
     except ValueError:
         #Don't import the line for a ValueError
         pass
     else:
         customers[customer] = Customer(parse_created)
-    return customers
