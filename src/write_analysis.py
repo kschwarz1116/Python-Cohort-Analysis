@@ -39,7 +39,7 @@ def generate_cohort_analysis(customers: CUSTOMERS, offset: str) -> CSVARRAY:
 
 def get_created_date(customer: Customer, tzone: dt.timezone) -> dt.date:
     """
-    Given a customer, returns their created time, localized to timezone
+    Given a customer, returns their created date, localized to timezone
     """
     created_time: dt.datetime = customer.created
     return created_time.astimezone(tzone).date()

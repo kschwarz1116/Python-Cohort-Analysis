@@ -29,9 +29,10 @@ def read_customer(customers: CUSTOMERS, customer: int, created: str) -> None:
     Attempts to create a customer. Creation times with bad formatting are ignored.
     """
     try:
-        parse_created: dt.datetime = dt.datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
+        created_dt: dt.datetime = dt.datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
+        created_dt = dt.datetime.combine(created_dt.date(), created_dt.time(), dt.timezone.utc)
     except ValueError:
         #Don't import the line for a ValueError
         pass
     else:
-        customers[customer] = Customer(parse_created)
+        customers[customer] = Customer(created_dt)
