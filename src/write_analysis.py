@@ -27,17 +27,20 @@ def generate_cohort_analysis(customers: CUSTOMERS, offset: str) -> CSVARRAY:
     return cohorts
 
 def generate_cohorts(customers: CUSTOMERS, tzone: dt.timezone) -> CSVARRAY:
+    """
+    Initializes the cohorts array based on the creation dates of customers
+    """
     cohorts: CSVARRAY = []
-    
+
     if customers:
         #Find cohort bounds - defined based on earliest and latest dates in the correct timezone
         get_created: Callable[[int], dt.datetime] = lambda x: customers[x].created
-        earliest_created: dt.date = get_created_date(customers[min(customers, key=get_created)], tzone)
-        latest_created: dt.date = get_created_date(customers[max(customers, key=get_created)], tzone)
+        earliest_date: dt.date = get_created_date(customers[min(customers, key=get_created)], tzone)
+        latest_date: dt.date = get_created_date(customers[max(customers, key=get_created)], tzone)
 
         #Initialize output array
-        cohort: dt.date = latest_created
-        while earliest_created <= cohort:
+        cohort: dt.date = latest_date
+        while earliest_date <= cohort:
             cohorts.append((cohort, 0, []))
             cohort = cohort - dt.timedelta(7)
 
@@ -64,7 +67,7 @@ def add_to_cohorts(customer: Customer, cohorts: CSVARRAY, tzone: dt.timezone) ->
     num_customers += 1
 
     distinct_purchase_weeks: Set[int] = set()
-    max_purchase_week: int = 0
+    max_purchase_week: int = -1
     purchase_week: int
 
     for time in customer.order_times:

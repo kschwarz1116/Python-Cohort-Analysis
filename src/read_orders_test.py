@@ -70,4 +70,3 @@ def test_3() -> None:
     customers_ex[1].order_times.append(dt.datetime(2017, 9, 15, 3, 0, 0, tzinfo=dt.timezone.utc))
     read_order(customers_act, 1, "2017-09-15 3:00:00")
     assert customers_equiv(customers_ex, customers_act)
-
