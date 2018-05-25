@@ -4,3 +4,4 @@ src/.*
 *__*
 .mypy_cache/
 *.csv
+.pytest_cache/

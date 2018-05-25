@@ -7,4 +7,4 @@ for file in src/*; do
     fi
 done
 
-python3 -m mypy --strict src/
+python3 -m mypy src/
