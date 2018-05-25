@@ -18,22 +18,28 @@ def generate_cohort_analysis(customers: CUSTOMERS, offset: str) -> CSVARRAY:
     [distinct purchases] is a list where index n is equal to the number of
     distinct customers that made a purchase within the nth week of their signup
     """
-    cohorts: CSVARRAY = []
     tzone: dt.timezone = dt.timezone(dt.timedelta(hours=float(offset)))
-
-    #Find cohort bounds - defined based on earliest and latest dates in the correct timezone
-    get_created: Callable[[int], dt.datetime] = lambda x: customers[x].created
-    earliest_created: dt.date = get_created_date(customers[min(customers, key=get_created)], tzone)
-    latest_created: dt.date = get_created_date(customers[max(customers, key=get_created)], tzone)
-
-    #Initialize output array
-    cohort: dt.date = latest_created
-    while earliest_created <= cohort:
-        cohorts.append((cohort, 0, []))
-        cohort = cohort - dt.timedelta(7)
+    cohorts: CSVARRAY = generate_cohorts(customers, tzone)
 
     for customer in customers.values():
         add_to_cohorts(customer, cohorts, tzone)
+
+    return cohorts
+
+def generate_cohorts(customers: CUSTOMERS, tzone: dt.timezone) -> CSVARRAY:
+    cohorts: CSVARRAY = []
+    
+    if customers:
+        #Find cohort bounds - defined based on earliest and latest dates in the correct timezone
+        get_created: Callable[[int], dt.datetime] = lambda x: customers[x].created
+        earliest_created: dt.date = get_created_date(customers[min(customers, key=get_created)], tzone)
+        latest_created: dt.date = get_created_date(customers[max(customers, key=get_created)], tzone)
+
+        #Initialize output array
+        cohort: dt.date = latest_created
+        while earliest_created <= cohort:
+            cohorts.append((cohort, 0, []))
+            cohort = cohort - dt.timedelta(7)
 
     return cohorts
 
